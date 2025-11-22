@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(CharacterController))]
 public class NewMonoBehaviourScript : MonoBehaviour
@@ -18,51 +19,81 @@ public class NewMonoBehaviourScript : MonoBehaviour
     float rotationX = 0;
     [HideInInspector] public bool canMove = true;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    public float coyoteTime = 0.15f;
+    public float jumpBufferTime = 0.15f;
+    private float coyoteTimeCounter = 0f;
+    private float jumpBufferCounter = 0f;
+
+    public InputActionAsset actionsAsset;
+    private InputAction moveAction;
+    private InputAction jumpAction;
+
     void Start()
     {
         characterController = GetComponent<CharacterController>();
-        // Verrouille le curseur
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        if (actionsAsset == null)
+        {
+            Debug.LogError("Assigne InputActionAsset dans l'inspecteur !");
+            return;
+        }
+        moveAction = actionsAsset.FindAction("Move");
+        jumpAction = actionsAsset.FindAction("Jump");
+        moveAction.Enable();
+        jumpAction.Enable();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        // Calcule les directions avant/arrière et gauche/droite
         Vector3 forward = transform.TransformDirection(Vector3.forward);
         Vector3 right = transform.TransformDirection(Vector3.right);
 
-        // Détermine la vitesse de déplacement en fonction de la touche Shift
-        bool isRunning = Input.GetKey(KeyCode.LeftShift);
-        float curSpeedX = canMove ? (isRunning ? runningSpeed : walkingSpeed) * Input.GetAxis("Vertical") : 0;
-        float curSpeedY = canMove ? (isRunning ? runningSpeed : walkingSpeed) * Input.GetAxis("Horizontal") : 0;
+        Vector2 moveInput = moveAction.ReadValue<Vector2>();
+        bool isRunning = Keyboard.current.leftShiftKey.isPressed;
+        float curSpeedX = canMove ? (isRunning ? runningSpeed : walkingSpeed) * moveInput.y : 0;
+        float curSpeedY = canMove ? (isRunning ? runningSpeed : walkingSpeed) * moveInput.x : 0;
 
-        // Calcule la direction de déplacement
-        moveDirection = (forward * curSpeedX) + (right * curSpeedY);
+        Vector3 horizontalMove = (forward * curSpeedX) + (right * curSpeedY);
 
-        // Gère le saut
-        if (Input.GetButton("Jump") && canMove && characterController.isGrounded) {
-            moveDirection.y = jumpSpeed;
+        if (characterController.isGrounded) {
+            coyoteTimeCounter = coyoteTime;
+            moveDirection.y = 0f;
         } else {
-            moveDirection.y = moveDirection.y;
+            coyoteTimeCounter -= Time.deltaTime;
         }
 
-        // Applique la gravité si le joueur n'est pas au sol
-        if (!characterController.isGrounded) {
-            moveDirection.y -= gravity * Time.deltaTime;
+        if (jumpAction.triggered && canMove) {
+            jumpBufferCounter = jumpBufferTime;
+        } else {
+            jumpBufferCounter -= Time.deltaTime;
         }
 
-        // Applique le mouvement
-        characterController.Move(moveDirection * Time.deltaTime);
+        if (jumpBufferCounter > 0f && coyoteTimeCounter > 0f)
+        {
+            moveDirection.y = jumpSpeed;
+            jumpBufferCounter = 0f;
+            coyoteTimeCounter = 0f;
+        }
+        moveDirection.y -= gravity * Time.deltaTime;
+        Vector3 finalMove = horizontalMove;
+        finalMove.y = moveDirection.y;
+        characterController.Move(finalMove * Time.deltaTime);
 
-        // Gère la rotation de la caméra (haut/bas et gauche/droite)
         if (canMove) {
-            rotationX += -Input.GetAxis("Mouse Y") * lookSpeed;
+            float mouseY = 0f;
+            float mouseX = 0f;
+            if (Mouse.current != null)
+            {
+                var mouseDelta = Mouse.current.delta.ReadValue();
+                mouseY = mouseDelta.y * 10;
+                mouseX = mouseDelta.x * 10;
+            }
+            rotationX += -mouseY * lookSpeed * Time.deltaTime;
             rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
             playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
-            transform.rotation *= Quaternion.Euler(0, Input.GetAxis("Mouse X") * lookSpeed, 0);
+            transform.rotation *= Quaternion.Euler(0, mouseX * lookSpeed * Time.deltaTime, 0);
         }
     }
 }
