@@ -15,6 +15,7 @@ public class NewMonoBehaviourScript : MonoBehaviour
     public float lookXLimit = 45.0f;
     public float climbSpeed = 3.0f;
     public bool isClimbing = false;
+    public bool CanGetUp = true;
 
     CharacterController characterController;
     Vector3 moveDirection = Vector3.zero;
@@ -103,11 +104,28 @@ public class NewMonoBehaviourScript : MonoBehaviour
             playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
             transform.rotation *= Quaternion.Euler(0, mouseX * lookSpeed * Time.deltaTime, 0);
         }
+        // crawl mechanics
+        if (Keyboard.current.cKey.isPressed)
+        {
+            characterController.height = 1.0f;
+        }
+        else if (CanGetUp)
+        {
+            characterController.height = 2.0f;
+        }
     }
 
     void OnTriggerEnter(Collider other) {
         if(other.gameObject.tag == "Ladder") {
             isClimbing = true;
+        }
+        if (other.gameObject.tag == "ExitCrawl")
+        {
+            CanGetUp = true;
+        }
+        if (other.gameObject.tag == "EnterCrawl")
+        {
+            CanGetUp = false;
         }
     }
 
