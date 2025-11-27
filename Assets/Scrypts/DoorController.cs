@@ -9,6 +9,14 @@ public class Door : MonoBehaviour
     public Vector3 CloseRotation = Vector3.zero;
     public float smoothSpeed = 2f;
     
+    [Header("Invert Axes")]
+    [Tooltip("Invert the opening direction on X axis relative to CloseRotation")]
+    public bool invertX = false;
+    [Tooltip("Invert the opening direction on Y axis relative to CloseRotation")]
+    public bool invertY = false;
+    [Tooltip("Invert the opening direction on Z axis relative to CloseRotation")]
+    public bool invertZ = false;
+    
     private bool isOpening = false;
     private Quaternion targetRotation;
 
@@ -24,7 +32,7 @@ public class Door : MonoBehaviour
 
     public void Update()
     {
-        Vector3 targetEuler = isOpening ? OpenRotation : CloseRotation;
+        Vector3 targetEuler = isOpening ? GetEffectiveOpenRotation() : CloseRotation;
         targetRotation = Quaternion.Euler(targetEuler);
         
         transform.localRotation = Quaternion.Slerp(
@@ -37,5 +45,19 @@ public class Door : MonoBehaviour
     public bool IsOpen()
     {
         return isOpening;
+    }
+
+    // Compute OpenRotation with optional per-axis inversion around CloseRotation
+    private Vector3 GetEffectiveOpenRotation()
+    {
+        Vector3 effective = OpenRotation;
+        // If invert on axis, mirror OpenRotation around CloseRotation on that axis
+        if (invertX)
+            effective.x = CloseRotation.x - (OpenRotation.x - CloseRotation.x);
+        if (invertY)
+            effective.y = CloseRotation.y - (OpenRotation.y - CloseRotation.y);
+        if (invertZ)
+            effective.z = CloseRotation.z - (OpenRotation.z - CloseRotation.z);
+        return effective;
     }
 }
