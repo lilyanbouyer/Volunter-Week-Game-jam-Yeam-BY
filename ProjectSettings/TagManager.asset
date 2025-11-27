@@ -7,6 +7,7 @@ TagManager:
   - Ladder
   - EnterCrawl
   - ExitCrawl
+  - Door
   layers:
   - Default
   - TransparentFX

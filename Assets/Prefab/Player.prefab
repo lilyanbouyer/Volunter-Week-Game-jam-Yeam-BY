@@ -28,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 64784417612012981}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.57, z: 0}
+  m_LocalPosition: {x: 0, y: 0.57, z: 0.179}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -261,6 +261,8 @@ GameObject:
   - component: {fileID: 6196515533288898417}
   - component: {fileID: 7070241053549128294}
   - component: {fileID: 8063025930030338471}
+  - component: {fileID: 5598272645394013289}
+  - component: {fileID: 5743543454387105898}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -329,7 +331,41 @@ MonoBehaviour:
   playerCamera: {fileID: 295135989223517853}
   lookSpeed: 2
   lookXLimit: 45
+  climbSpeed: 3
+  isClimbing: 0
+  CanGetUp: 1
   canMove: 1
   coyoteTime: 0.15
   jumpBufferTime: 0.15
+  actionsAsset: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
+--- !u!114 &5598272645394013289
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7304900983438230678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad88dc6cef8b2942ea6825359432a8ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DoorController
+  playerHead: {fileID: 295135989223517853}
+  doorOpenAngle: 90
+  doorCloseAngle: 0
+  smooth: 2
+--- !u!114 &5743543454387105898
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7304900983438230678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2cda0315f7edb24291ffb13a61c9a55, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Interactions
+  playerCamera: {fileID: 295135989223517853}
+  doorController: {fileID: 5598272645394013289}
   actionsAsset: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
