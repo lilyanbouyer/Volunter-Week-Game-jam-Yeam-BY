@@ -13,6 +13,8 @@ public class NewMonoBehaviourScript : MonoBehaviour
     public Camera playerCamera;
     public float lookSpeed = 2.0f;
     public float lookXLimit = 45.0f;
+    public float climbSpeed = 3.0f;
+    public bool isClimbing = false;
 
     CharacterController characterController;
     Vector3 moveDirection = Vector3.zero;
@@ -51,36 +53,42 @@ public class NewMonoBehaviourScript : MonoBehaviour
         Vector3 right = transform.TransformDirection(Vector3.right);
 
         Vector2 moveInput = moveAction.ReadValue<Vector2>();
-        bool isRunning = Keyboard.current.leftShiftKey.isPressed;
-        float curSpeedX = canMove ? (isRunning ? runningSpeed : walkingSpeed) * moveInput.y : 0;
-        float curSpeedY = canMove ? (isRunning ? runningSpeed : walkingSpeed) * moveInput.x : 0;
+            bool isRunning = Keyboard.current.leftShiftKey.isPressed;
+            float curSpeedX = canMove ? (isRunning ? runningSpeed : walkingSpeed) * moveInput.y : 0;
+            float curSpeedY = canMove ? (isRunning ? runningSpeed : walkingSpeed) * moveInput.x : 0;
 
-        Vector3 horizontalMove = (forward * curSpeedX) + (right * curSpeedY);
+            Vector3 horizontalMove = (forward * curSpeedX) + (right * curSpeedY);
+            Vector3 finalMove = horizontalMove;
 
-        if (characterController.isGrounded) {
-            coyoteTimeCounter = coyoteTime;
-            moveDirection.y = 0f;
+        if(isClimbing) {
+            float verticalInput = moveInput.y;
+            Vector3 climbDirection = new Vector3(0, verticalInput * climbSpeed, 0);
+            finalMove.y = climbDirection.y;
         } else {
-            coyoteTimeCounter -= Time.deltaTime;
-        }
 
-        if (jumpAction.triggered && canMove) {
-            jumpBufferCounter = jumpBufferTime;
-        } else {
-            jumpBufferCounter -= Time.deltaTime;
-        }
+            if (characterController.isGrounded) {
+                coyoteTimeCounter = coyoteTime;
+                moveDirection.y = 0f;
+            } else {
+                coyoteTimeCounter -= Time.deltaTime;
+            }
 
-        if (jumpBufferCounter > 0f && coyoteTimeCounter > 0f)
-        {
-            moveDirection.y = jumpSpeed;
-            jumpBufferCounter = 0f;
-            coyoteTimeCounter = 0f;
+            if (jumpAction.triggered && canMove) {
+                jumpBufferCounter = jumpBufferTime;
+            } else {
+                jumpBufferCounter -= Time.deltaTime;
+            }
+
+            if (jumpBufferCounter > 0f && coyoteTimeCounter > 0f)
+            {
+                moveDirection.y = jumpSpeed;
+                jumpBufferCounter = 0f;
+                coyoteTimeCounter = 0f;
+            }
+            moveDirection.y -= gravity * Time.deltaTime;
+            finalMove.y = moveDirection.y;
         }
-        moveDirection.y -= gravity * Time.deltaTime;
-        Vector3 finalMove = horizontalMove;
-        finalMove.y = moveDirection.y;
         characterController.Move(finalMove * Time.deltaTime);
-
         if (canMove) {
             float mouseY = 0f;
             float mouseX = 0f;
@@ -94,6 +102,18 @@ public class NewMonoBehaviourScript : MonoBehaviour
             rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
             playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
             transform.rotation *= Quaternion.Euler(0, mouseX * lookSpeed * Time.deltaTime, 0);
+        }
+    }
+
+    void OnTriggerEnter(Collider other) {
+        if(other.gameObject.tag == "Ladder") {
+            isClimbing = true;
+        }
+    }
+
+    void OnTriggerExit(Collider other) {
+        if(other.gameObject.tag == "Ladder") {
+            isClimbing = false;
         }
     }
 }
