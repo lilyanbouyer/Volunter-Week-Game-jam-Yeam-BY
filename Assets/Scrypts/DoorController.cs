@@ -1,41 +1,41 @@
 using UnityEngine;
 
-public class DoorController : MonoBehaviour
+// Component to attach to individual doors for custom settings
+public class Door : MonoBehaviour
 {
-    public Camera playerHead; // Caméra du joueur
-    public float doorOpenAngle = 90.0f;
-    public float doorCloseAngle = 0.0f;
-    public float smooth = 2.0f; // Augmenté pour une transition plus fluide
+    [Header("Door Settings")]
+    // Use Vector3 to allow full rotation on all axes (x, y, z)
+    public Vector3 OpenRotation = new Vector3(0f, 90.0f, 0f);
+    public Vector3 CloseRotation = Vector3.zero;
+    public float smoothSpeed = 2f;
+    
+    private bool isOpening = false;
+    private Quaternion targetRotation;
 
-    private bool isOpening = false; // État de la porte
-    private GameObject currentDoor = null;
-
-    public void OpenCloseDoor(RaycastHit hit)
+    void Start()
     {
-        currentDoor = hit.transform.gameObject;
-        isOpening = !isOpening; // Inverser l'état de la porte
-
     }
 
-    public GameObject GetCurrentDoor()
+    public bool TryOpen()
     {
-        return currentDoor;
+        isOpening = !isOpening;
+        return true;
     }
 
-    public void HandleDoor()
+    public void Update()
     {
-        if (currentDoor)
-        {
-            // Définir l'angle cible
-            float targetAngle = isOpening ? doorOpenAngle : doorCloseAngle;
-            Quaternion targetRotation = Quaternion.Euler(0, targetAngle, 0);
+        Vector3 targetEuler = isOpening ? OpenRotation : CloseRotation;
+        targetRotation = Quaternion.Euler(targetEuler);
+        
+        transform.localRotation = Quaternion.Slerp(
+            transform.localRotation,
+            targetRotation,
+            smoothSpeed * Time.deltaTime
+        );
+    }
 
-            // Appliquer la rotation progressivement
-            currentDoor.transform.localRotation = Quaternion.Slerp(
-                currentDoor.transform.localRotation,
-                targetRotation,
-                smooth * Time.deltaTime
-            );
-        }
+    public bool IsOpen()
+    {
+        return isOpening;
     }
 }

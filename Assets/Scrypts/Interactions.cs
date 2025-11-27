@@ -4,7 +4,6 @@ using UnityEngine.InputSystem;
 public class Interactions : MonoBehaviour
 {
     public Camera playerCamera;
-    public DoorController doorController;
     
     // Nouveau Input System
     public InputActionAsset actionsAsset;
@@ -45,14 +44,12 @@ public class Interactions : MonoBehaviour
         // else if (Input.GetKeyDown(KeyCode.F12)) {
         //    SceneManager.LoadScene("Test_Scene");
         // }
-        if (doorController && doorController.GetCurrentDoor())
-            doorController.HandleDoor();
     }
 
     private void ControllerColliderHit(RaycastHit hit)
     {
         if (hit.transform.gameObject.CompareTag("Door"))
-            doorController.OpenCloseDoor(hit);
+            OpenCloseDoor(hit);
         /*else if (hit.transform.gameObject.CompareTag("Pickup") && !itemPickup.GetCurrentItem())    
             itemPickup.PickupItem(hit);
         else if (hit.transform.gameObject.CompareTag("Placement") && itemPickup.GetCurrentItem()) {
@@ -66,4 +63,18 @@ public class Interactions : MonoBehaviour
         else if (hit.transform.gameObject.CompareTag("Switch"))
             lightController.ToggleLightWithend(hit.transform.gameObject.name, hit.transform.gameObject);*/
     }
+
+    public void OpenCloseDoor(RaycastHit hit)
+    {
+        Door door = hit.transform.GetComponent<Door>();
+        
+        if (door == null)
+        {
+            Debug.LogWarning("Clicked object doesn't have a Door component!");
+            return;
+        }
+
+        door.TryOpen();
+    }
+
 }
