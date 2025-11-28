@@ -116,7 +116,7 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
@@ -354,6 +354,7 @@ MonoBehaviour:
   playerCamera: {fileID: 295135989223517853}
   actionsAsset: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   movementsScript: {fileID: 8063025930030338471}
+  playerHand: {fileID: 0}
 --- !u!114 &1970322461497406107
 MonoBehaviour:
   m_ObjectHideFlags: 0
