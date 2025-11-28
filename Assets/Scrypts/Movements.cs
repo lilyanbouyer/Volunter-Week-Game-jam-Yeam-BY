@@ -16,6 +16,7 @@ public class NewMonoBehaviourScript : MonoBehaviour
     public float climbSpeed = 3.0f;
     public bool isClimbing = false;
     public bool CanGetUp = true;
+    public bool isdialogueActive = false;
 
     CharacterController characterController;
     Vector3 moveDirection = Vector3.zero;
@@ -50,6 +51,30 @@ public class NewMonoBehaviourScript : MonoBehaviour
 
     void Update()
     {
+        // If dialogue is active, stop movement and unlock cursor
+        if (isdialogueActive)
+        {
+            canMove = false;
+            // disable input actions so they don't trigger while in dialogue
+            if (moveAction != null && moveAction.enabled) moveAction.Disable();
+            if (jumpAction != null && jumpAction.enabled) jumpAction.Disable();
+            // unlock mouse and make visible for UI interaction
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+            // stop any residual movement
+            moveDirection = Vector3.zero;
+            return;
+        }
+
+        // If we reach here, dialogue is not active: ensure inputs and cursor are restored
+        if (!canMove)
+        {
+            canMove = true;
+            if (moveAction != null && !moveAction.enabled) moveAction.Enable();
+            if (jumpAction != null && !jumpAction.enabled) jumpAction.Enable();
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
         Vector3 forward = transform.TransformDirection(Vector3.forward);
         Vector3 right = transform.TransformDirection(Vector3.right);
 

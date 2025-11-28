@@ -9,6 +9,7 @@ public class Interactions : MonoBehaviour
     public InputActionAsset actionsAsset;
     private InputAction interactAction;
     private bool interactPressed = false;
+    public NewMonoBehaviourScript movementsScript;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -50,6 +51,15 @@ public class Interactions : MonoBehaviour
     {
         if (hit.transform.gameObject.CompareTag("Door"))
             OpenCloseDoor(hit);
+        if (hit.transform.gameObject.CompareTag("NPC"))
+        {
+            conversation_starter convo = hit.transform.GetComponent<conversation_starter>();
+            if (convo != null)
+            {
+                movementsScript.isdialogueActive = true;
+                convo.StartConversation();
+            }
+        }
         /*else if (hit.transform.gameObject.CompareTag("Pickup") && !itemPickup.GetCurrentItem())    
             itemPickup.PickupItem(hit);
         else if (hit.transform.gameObject.CompareTag("Placement") && itemPickup.GetCurrentItem()) {
