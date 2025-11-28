@@ -10,6 +10,8 @@ public class Interactions : MonoBehaviour
     private InputAction interactAction;
     private bool interactPressed = false;
     public NewMonoBehaviourScript movementsScript;
+    public Transform playerHand;
+    private GameObject currentItem = null;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -60,8 +62,9 @@ public class Interactions : MonoBehaviour
                 convo.StartConversation();
             }
         }
-        /*else if (hit.transform.gameObject.CompareTag("Pickup") && !itemPickup.GetCurrentItem())    
-            itemPickup.PickupItem(hit);
+        else if (hit.transform.gameObject.CompareTag("Pickup"))    
+            PickupItem(hit);
+        /*
         else if (hit.transform.gameObject.CompareTag("Placement") && itemPickup.GetCurrentItem()) {
             if (hit.transform.childCount == 0) {
                 hit.transform.GetComponent<ItemPlacement>().SetCurrentItem(itemPickup.GetCurrentItem());
@@ -85,6 +88,42 @@ public class Interactions : MonoBehaviour
         }
 
         door.TryOpen();
+    }
+
+    public void PickupItem(RaycastHit hit)
+    {
+        GameObject targetItem = hit.transform.gameObject;
+        /*if(targetItem.transform.parent != null && targetItem.transform.parent.CompareTag("Placement"))
+        {
+            ItemPlacement placement = targetItem.transform.parent.GetComponent<ItemPlacement>();
+            if(placement.enigmeChecker != null && placement.IsGoodItem(targetItem.transform.parent.name, targetItem.name))
+            {
+                placement.enigmeChecker.DecrementCurrent();
+            }
+            targetItem.transform.SetParent(null);
+        }*/
+        currentItem = targetItem;
+        currentItem.transform.SetParent(playerHand);
+        currentItem.transform.localPosition = Vector3.zero;
+        currentItem.transform.localRotation = Quaternion.Euler(0, 180, 0);
+        currentItem.GetComponent<Rigidbody>().isKinematic = true;
+        currentItem.GetComponent<Rigidbody>().useGravity = true;
+        if (currentItem.GetComponent<Collider>() != null)
+            currentItem.GetComponent<Collider>().enabled = false;
+        //if (hit.transform.parent.GetComponent<ItemPlacement>())
+        //    hit.transform.parent.GetComponent<ItemPlacement>().SetCurrentItem(currentItem);
+}
+
+    public void DropItem()
+    {
+        if (false) {
+        currentItem.transform.SetParent(null);
+        currentItem.GetComponent<Rigidbody>().isKinematic = false;
+        currentItem.GetComponent<Rigidbody>().useGravity = true;
+        if (currentItem.GetComponent<Collider>() != null)
+            currentItem.GetComponent<Collider>().enabled = true;
+        currentItem = null;
+        }
     }
 
 }

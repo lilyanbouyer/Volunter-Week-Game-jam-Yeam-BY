@@ -9,6 +9,7 @@ TagManager:
   - ExitCrawl
   - Door
   - NPC
+  - Pickup
   layers:
   - Default
   - TransparentFX
